@@ -7,6 +7,8 @@ import {
 } from "firebase/auth";
 import { auth } from "../services/firebase";
 import Swal from "sweetalert2";
+import { getUserData } from "../services/userService";
+
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -17,9 +19,26 @@ export default function Login() {
     e.preventDefault();
     try {
       await setPersistence(auth, browserLocalPersistence);
-      await signInWithEmailAndPassword(auth, email, password);
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+
+      if (!cred.user.emailVerified) {
+        Swal.fire(
+          "Verificación requerida",
+          "Debes verificar tu correo antes de ingresar.",
+          "warning"
+        );
+        return;
+      }
+
       Swal.fire("Bienvenido", "Has iniciado sesión correctamente", "success");
-      navigate("/home");
+
+      const datos = await getUserData(cred.user.uid);
+
+      if (datos.tipo === "admin") {
+        navigate("/admin/dashboard");
+      } else if (datos.tipo === "cliente") {
+        navigate("/cliente/dashboard");
+      }
     } catch (error) {
       Swal.fire("Error", "Credenciales incorrectas o fallo de red", "error");
     }
@@ -37,6 +56,7 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            maxLength={64}
           />
         </div>
 

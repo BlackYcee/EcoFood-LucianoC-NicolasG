@@ -1,39 +1,46 @@
 import { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../services/firebase";
-import { AuthContext } from "./AuthContext"; // Asegúrate de tener este archivo separado
-import { getUserData } from "../services/userService"; // Este módulo debe contener tu lógica para leer Firestore
+import { AuthContext } from "./AuthContext";
+import { getUserData } from "../services/userService";
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Usuario de Firebase Auth
-  const [userData, setUserData] = useState(null); // Datos adicionales desde Firestore
-  const [loading, setLoading] = useState(true); // Indicador de carga inicial
+  const [user, setUser] = useState(null);         // Usuario de Firebase Auth
+  const [userData, setUserData] = useState(null); // Datos desde Firestore
+  const [loading, setLoading] = useState(true);   // Indicador de carga inicial
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
+
         try {
           const data = await getUserData(firebaseUser.uid);
-          if (!data || !data.tipo) {
-            console.warn("El usuario está autenticado pero no tiene datos completos.");
-            setUserData({ tipo: "invitado" }); // O decide qué hacer
-          } else {
+
+          if (data?.tipo) {
             setUserData(data);
+          } else {
+            console.warn("Usuario autenticado sin rol asignado");
+            setUser(null);
+            setUserData(null);
+            auth.signOut(); // opcional: forzar logout si no tiene datos válidos
           }
+
         } catch (error) {
-          console.error("Error al cargar datos del usuario:", error);
-          setUserData(null); // Evita propagar errores al contexto
+          console.error("Error al obtener datos del usuario desde Firestore:", error);
+          setUser(null);
+          setUserData(null);
         }
 
       } else {
         setUser(null);
         setUserData(null);
       }
+
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => unsubscribe(); // Cleanup
   }, []);
 
   if (loading) {

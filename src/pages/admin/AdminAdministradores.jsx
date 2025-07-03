@@ -3,88 +3,82 @@ import Swal from "sweetalert2";
 import {
   getClientes,
   updateCliente,
-  deleteCliente,
-  registrarClienteConAuth,
-} from "../../services/clienteFirebase"; // registrarClienteConAuth es la nueva función
+  deleteCliente
+} from "../../services/clienteFirebase";
 
-export default function AdminClientes() {
-  const [clientes, setClientes] = useState([]);
-  const [clienteActivo, setClienteActivo] = useState(null);
+export default function AdminAdministradores() {
+  const [admins, setAdmins] = useState([]);
+  const [adminActivo, setAdminActivo] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
     comuna: "",
     direccion: "",
-    password: "",
+    telefono: "",
+    tipo: "admin"
   });
 
-  const cargarClientes = async () => {
+  const cargarAdministradores = async () => {
     const data = await getClientes();
-    setClientes(data);
+    const soloAdmins = data.filter((u) => u.tipo === "admin");
+    setAdmins(soloAdmins);
   };
 
   const guardar = async () => {
     try {
-      if (clienteActivo) {
-        await updateCliente(clienteActivo.id, formData);
-      } else {
-        if (!formData.password || formData.password.length < 6) {
-          Swal.fire(
-            "Contraseña inválida",
-            "La contraseña debe tener al menos 6 caracteres.",
-            "warning"
-          );
-          return;
-        }
-        await registrarClienteConAuth(formData);
-        Swal.fire("Cliente registrado", "Se envió un correo de verificación.", "success");
+      if (adminActivo) {
+        await updateCliente(adminActivo.id, formData);
+        Swal.fire("Actualizado", "Administrador actualizado correctamente", "success");
       }
       setShowModal(false);
-      cargarClientes();
+      cargarAdministradores();
     } catch (error) {
-      Swal.fire("Error", error.message || "No se pudo registrar el cliente", "error");
+      Swal.fire("Error", error.message || "No se pudo actualizar", "error");
     }
   };
 
   const eliminar = async (id) => {
-    const result = await Swal.fire({
-      title: "¿Eliminar cliente?",
+    const resultado = await Swal.fire({
+      title: "¿Eliminar administrador?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Sí",
+      confirmButtonText: "Sí, eliminar",
     });
 
-    if (result.isConfirmed) {
+    if (resultado.isConfirmed) {
       await deleteCliente(id);
-      cargarClientes();
+      cargarAdministradores();
     }
   };
 
   useEffect(() => {
-    cargarClientes();
+    cargarAdministradores();
   }, []);
 
   return (
     <div className="container mt-4">
-      <h3>Clientes Registrados</h3>
+      <h3>Administradores Registrados</h3>
 
       <button
         className="btn btn-primary mb-3"
         onClick={() => {
-          setClienteActivo(null);
+          setAdminActivo(null);
           setFormData({
             nombre: "",
             email: "",
             comuna: "",
             direccion: "",
-            password: "",
+            telefono: "",
+            tipo: "admin"
           });
           setShowModal(true);
         }}
       >
-        Nuevo Cliente
+        Nuevo Administrador
       </button>
+
+
 
       <table className="table">
         <thead>
@@ -92,26 +86,31 @@ export default function AdminClientes() {
             <th>Nombre</th>
             <th>Email</th>
             <th>Comuna</th>
+            <th>Teléfono</th>
+            <th>Dirección</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {clientes.map((c) => (
-            <tr key={c.id}>
-              <td>{c.nombre}</td>
-              <td>{c.email}</td>
-              <td>{c.comuna}</td>
+          {admins.map((a) => (
+            <tr key={a.id}>
+              <td>{a.nombre}</td>
+              <td>{a.email}</td>
+              <td>{a.comuna}</td>
+              <td>{a.telefono}</td>
+              <td>{a.direccion}</td>
               <td>
                 <button
                   className="btn btn-warning btn-sm me-2"
                   onClick={() => {
-                    setClienteActivo(c);
+                    setAdminActivo(a);
                     setFormData({
-                      nombre: c.nombre,
-                      email: c.email,
-                      comuna: c.comuna,
-                      direccion: c.direccion || "",
-                      password: "", // se deja vacío al editar
+                      nombre: a.nombre,
+                      email: a.email,
+                      comuna: a.comuna,
+                      direccion: a.direccion || "",
+                      telefono: a.telefono || "",
+                      tipo: a.tipo || "admin"
                     });
                     setShowModal(true);
                   }}
@@ -120,7 +119,7 @@ export default function AdminClientes() {
                 </button>
                 <button
                   className="btn btn-danger btn-sm"
-                  onClick={() => eliminar(c.id)}
+                  onClick={() => eliminar(a.id)}
                 >
                   Eliminar
                 </button>
@@ -130,15 +129,12 @@ export default function AdminClientes() {
         </tbody>
       </table>
 
-      {/* Modal */}
       {showModal && (
         <div className="modal d-block" tabIndex="-1">
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">
-                  {clienteActivo ? "Editar Cliente" : "Nuevo Cliente"}
-                </h5>
+                <h5 className="modal-title">Editar Administrador</h5>
               </div>
               <div className="modal-body">
                 <input
@@ -154,7 +150,6 @@ export default function AdminClientes() {
                   className="form-control mb-2"
                   placeholder="Email"
                   value={formData.email}
-                  maxLength={254}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
@@ -175,17 +170,17 @@ export default function AdminClientes() {
                     setFormData({ ...formData, direccion: e.target.value })
                   }
                 />
-                {!clienteActivo && (
-                  <input
-                    type="password"
-                    className="form-control mb-2"
-                    placeholder="Contraseña (mínimo 6 caracteres)"
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
+                <input
+                  className="form-control mb-2"
+                  placeholder="Teléfono"
+                  value={formData.telefono}
+                  onChange={(e) => {
+                    const valor = e.target.value;
+                    if (/^\d*$/.test(valor) && valor.length <= 12) {
+                      setFormData({ ...formData, telefono: valor });
                     }
-                  />
-                )}
+                  }}
+                />
               </div>
               <div className="modal-footer">
                 <button

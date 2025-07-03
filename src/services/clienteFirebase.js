@@ -13,7 +13,6 @@ import {
   deleteDoc,
   doc,
   setDoc,
-  doc
 } from "firebase/firestore";
 
 

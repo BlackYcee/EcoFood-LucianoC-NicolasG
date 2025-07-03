@@ -3,13 +3,12 @@ import Swal from "sweetalert2";
 import {
   getClientes,
   updateCliente,
-  deleteCliente,
-  registrarClienteConAuth,
+  deleteCliente
 } from "../../services/clienteFirebase";
 
-export default function AdminUsuarios() {
-  const [clientes, setClientes] = useState([]);
-  const [clienteActivo, setClienteActivo] = useState(null);
+export default function AdminEmpresas() {
+  const [admins, setAdmins] = useState([]);
+  const [adminActivo, setAdminActivo] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
@@ -17,78 +16,69 @@ export default function AdminUsuarios() {
     comuna: "",
     direccion: "",
     telefono: "",
-    tipo: "cliente",
-    password: "",
+    tipo: "admin"
   });
 
-  const cargarClientes = async () => {
+  const cargarEmpresa = async () => {
     const data = await getClientes();
-    setClientes(data);
+    const soloEmpresas = data.filter((u) => u.tipo === "empresa");
+    setAdmins(soloEmpresas);
+
   };
 
   const guardar = async () => {
     try {
-      if (clienteActivo) {
-        await updateCliente(clienteActivo.id, formData);
-      } else {
-        if (!formData.password || formData.password.length < 6) {
-          Swal.fire(
-            "Contraseña inválida",
-            "La contraseña debe tener al menos 6 caracteres.",
-            "warning"
-          );
-          return;
-        }
-        await registrarClienteConAuth(formData);
-        Swal.fire("Cliente registrado", "Se envió un correo de verificación.", "success");
+      if (adminActivo) {
+        await updateCliente(adminActivo.id, formData);
+        Swal.fire("Actualizado", "Empresa actualizada correctamente", "success");
       }
       setShowModal(false);
-      cargarClientes();
+      cargarEmpresa();
     } catch (error) {
-      Swal.fire("Error", error.message || "No se pudo registrar el cliente", "error");
+      Swal.fire("Error", error.message || "No se pudo actualizar", "error");
     }
   };
 
   const eliminar = async (id) => {
-    const result = await Swal.fire({
-      title: "¿Eliminar cliente?",
+    const resultado = await Swal.fire({
+      title: "¿Eliminar empresa?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Sí",
+      confirmButtonText: "Sí, eliminar",
     });
 
-    if (result.isConfirmed) {
+    if (resultado.isConfirmed) {
       await deleteCliente(id);
-      cargarClientes();
+      cargarEmpresa();
     }
   };
 
   useEffect(() => {
-    cargarClientes();
+    cargarEmpresa();
   }, []);
-
   return (
     <div className="container mt-4">
-      <h3>Clientes Registrados</h3>
+      <h3>Empresas Registradas</h3>
 
       <button
         className="btn btn-primary mb-3"
         onClick={() => {
-          setClienteActivo(null);
+          setAdminActivo(null);
           setFormData({
             nombre: "",
             email: "",
             comuna: "",
             direccion: "",
             telefono: "",
-            tipo: "cliente",
-            password: "",
+            tipo: "empresa"
           });
           setShowModal(true);
         }}
       >
-        Nuevo Cliente
+        Nueva Empresa
       </button>
+
+
 
       <table className="table">
         <thead>
@@ -97,33 +87,30 @@ export default function AdminUsuarios() {
             <th>Email</th>
             <th>Comuna</th>
             <th>Teléfono</th>
-            <th>Tipo</th>
             <th>Dirección</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {clientes.map((c) => (
-            <tr key={c.id}>
-              <td>{c.nombre}</td>
-              <td>{c.email}</td>
-              <td>{c.comuna}</td>
-              <td>{c.telefono}</td>
-              <td>{c.tipo}</td>
-              <td>{c.direccion}</td>
+          {admins.map((a) => (
+            <tr key={a.id}>
+              <td>{a.nombre}</td>
+              <td>{a.email}</td>
+              <td>{a.comuna}</td>
+              <td>{a.telefono}</td>
+              <td>{a.direccion}</td>
               <td>
                 <button
                   className="btn btn-warning btn-sm me-2"
                   onClick={() => {
-                    setClienteActivo(c);
+                    setAdminActivo(a);
                     setFormData({
-                      nombre: c.nombre,
-                      email: c.email,
-                      comuna: c.comuna,
-                      direccion: c.direccion || "",
-                      telefono: c.telefono || "",
-                      tipo: c.tipo || "cliente",
-                      password: "",
+                      nombre: a.nombre,
+                      email: a.email,
+                      comuna: a.comuna,
+                      direccion: a.direccion || "",
+                      telefono: a.telefono || "",
+                      tipo: a.tipo || "empresa"
                     });
                     setShowModal(true);
                   }}
@@ -132,7 +119,7 @@ export default function AdminUsuarios() {
                 </button>
                 <button
                   className="btn btn-danger btn-sm"
-                  onClick={() => eliminar(c.id)}
+                  onClick={() => eliminar(a.id)}
                 >
                   Eliminar
                 </button>
@@ -148,7 +135,7 @@ export default function AdminUsuarios() {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">
-                  {clienteActivo ? "Editar Cliente" : "Nuevo Cliente"}
+                  {adminActivo ? "Editar Empresa" : "Nueva Empresa"}
                 </h5>
               </div>
               <div className="modal-body">
@@ -165,7 +152,6 @@ export default function AdminUsuarios() {
                   className="form-control mb-2"
                   placeholder="Email"
                   value={formData.email}
-                  maxLength={254}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
@@ -179,18 +165,6 @@ export default function AdminUsuarios() {
                   }
                 />
                 <input
-                  type="text"
-                  className="form-control mb-2"
-                  placeholder="Teléfono"
-                  value={formData.telefono}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^\d*$/.test(value) && value.length <= 12) {
-                      setFormData({ ...formData, telefono: value });
-                    }
-                  }}
-                />
-                <input
                   className="form-control mb-2"
                   placeholder="Dirección"
                   value={formData.direccion}
@@ -198,17 +172,17 @@ export default function AdminUsuarios() {
                     setFormData({ ...formData, direccion: e.target.value })
                   }
                 />
-                {!clienteActivo && (
-                  <input
-                    type="password"
-                    className="form-control mb-2"
-                    placeholder="Contraseña (mínimo 6 caracteres)"
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
+                <input
+                  className="form-control mb-2"
+                  placeholder="Teléfono"
+                  value={formData.telefono}
+                  onChange={(e) => {
+                    const valor = e.target.value;
+                    if (/^\d*$/.test(valor) && valor.length <= 12) {
+                      setFormData({ ...formData, telefono: valor });
                     }
-                  />
-                )}
+                  }}
+                />
               </div>
               <div className="modal-footer">
                 <button

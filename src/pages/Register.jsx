@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { auth } from "../services/firebase";
+import { auth, db } from "../services/firebase";
 import Swal from "sweetalert2";
 import { useNavigate, Link } from "react-router-dom";
 import { saveUserData } from "../services/userService";
+import { setDoc, doc } from "firebase/firestore";
 
 export default function RegisterCliente() {
   const [email, setEmail] = useState("");
@@ -34,14 +35,16 @@ export default function RegisterCliente() {
       await sendEmailVerification(cred.user);
 
 
-      await saveUserData(cred.user.uid, {
+     await setDoc(doc(db, "usuarios", cred.user.uid), {
+        uid: cred.user.uid,
         nombre,
         email,
-        tipo,
+        tipo: "cliente",
         direccion,
         comuna,
-        telefono,
+        telefono
       });
+
 
       Swal.fire(
         "Registro exitoso",
@@ -70,6 +73,7 @@ export default function RegisterCliente() {
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             required
+            maxLength={64}
           />
         </div>
 
@@ -81,6 +85,7 @@ export default function RegisterCliente() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            maxLength={64}
           />
         </div>
 
@@ -92,6 +97,7 @@ export default function RegisterCliente() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            maxLength={64}
           />
         </div>
 
@@ -103,6 +109,8 @@ export default function RegisterCliente() {
             value={direccion}
             onChange={(e) => setDireccion(e.target.value)}
             required
+            placeholder="Ej: Av falsa 123"
+            maxLength={100}
           />
         </div>
 
@@ -114,28 +122,28 @@ export default function RegisterCliente() {
             value={comuna}
             onChange={(e) => setComuna(e.target.value)}
             required
+            maxLength={64}
+            placeholder="Ej: La Serena"
           />
         </div>
 
         <div className="mb-3">
-          <label className="form-label">Teléfono (opcional)</label>
+          <label className="form-label">Teléfono</label>
           <input
             type="tel"
             className="form-control"
             value={telefono}
-            onChange={(e) => setTelefono(e.target.value)}
+           onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d*$/.test(value) && value.length <= 12) {
+                setTelefono(value);
+              }
+            }}
+            placeholder="Ej: 987654321"
+            maxLength={12} 
           />
         </div>
 
-        <div className="mb-3">
-          <label className="form-label">Tipo de usuario</label>
-          <input
-            type="text"
-            className="form-control"
-            value={tipo}
-            readOnly
-          />
-        </div>
 
         <p className="mt-2">
           ¿Ya tienes una cuenta? <Link to="/login">Inicia sesión</Link>

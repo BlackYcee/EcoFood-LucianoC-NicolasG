@@ -6,14 +6,15 @@ export default function TablaProductos({
   busqueda,
   estadoFiltro,
   orden,
-  limite,
+  paginaActual,
+  productosPorPagina,
   eliminar,
   abrirModal
 }) {
   const [productos, setProductos] = useState([]);
 
   const cargar = async () => {
-    const data = await getProductos(userData.uid); // Asegúrate de filtrar por empresa
+    const data = await getProductos(userData.uid);
     setProductos(data);
   };
 
@@ -21,17 +22,24 @@ export default function TablaProductos({
     cargar();
   }, []);
 
-  const filtrar = () => {
+  const filtrarOrdenar = () => {
     const hoy = new Date();
+
     return productos
-      .filter((p) => p.nombre.toLowerCase().includes(busqueda.toLowerCase()))
+      .filter((p) =>
+        p.nombre.toLowerCase().includes(busqueda.toLowerCase())
+      )
       .filter((p) => {
         const vencimiento = new Date(p.vencimiento);
         const diff = (vencimiento - hoy) / (1000 * 60 * 60 * 24);
+
         if (estadoFiltro === "todos") return true;
-        if (estadoFiltro === "disponible") return p.estado === "disponible" && diff > 3;
-        if (estadoFiltro === "por-vencer") return p.estado === "disponible" && diff <= 3 && diff >= 0;
+        if (estadoFiltro === "disponible")
+          return p.estado === "disponible" && diff > 3;
+        if (estadoFiltro === "por-vencer")
+          return p.estado === "disponible" && diff <= 3 && diff >= 0;
         if (estadoFiltro === "vencido") return diff < 0;
+
         return true;
       })
       .sort((a, b) => {
@@ -40,8 +48,12 @@ export default function TablaProductos({
         if (orden === "precio-asc") return a.precio - b.precio;
         if (orden === "precio-desc") return b.precio - a.precio;
         return 0;
-      })
-      .slice(0, limite);
+      });
+  };
+
+  const paginados = () => {
+    const inicio = (paginaActual - 1) * productosPorPagina;
+    return filtrarOrdenar().slice(inicio, inicio + productosPorPagina);
   };
 
   return (
@@ -58,15 +70,15 @@ export default function TablaProductos({
         </tr>
       </thead>
       <tbody>
-        {filtrar().map((p) => {
+        {paginados().map((p) => {
           const vencimiento = new Date(p.vencimiento);
           const hoy = new Date();
           const dias = Math.ceil((vencimiento - hoy) / (1000 * 60 * 60 * 24));
           const advertencia =
             dias <= 3 && dias >= 0
-              ? "🟠 Por vencer"
+              ? "Por vencer"
               : dias < 0
-              ? "🔴 Vencido"
+              ? "Vencido"
               : "";
 
           return (

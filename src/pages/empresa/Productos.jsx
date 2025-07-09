@@ -54,6 +54,11 @@ export default function Productos() {
     setShowModal(true);
   };
 
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [productosPorPagina, setProductosPorPagina] = useState(10);
+
+
+
   return (
     <>
       <div className="container mt-4">
@@ -84,14 +89,53 @@ export default function Productos() {
             </div>
           </div>
 
+          <div className="col-12 col-md-4 mt-2">
+            <label className="form-label">Productos por página</label>
+            <select
+              className="form-select"
+              value={productosPorPagina}
+              onChange={(e) => {
+                setPaginaActual(1); // volver a la primera página al cambiar cantidad
+                setProductosPorPagina(Number(e.target.value));
+              }}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+            </select>
+          </div>
+
+
           <div className="col-12">
             <TablaProductos
               key={refreshTick}
-              busqueda={busqueda}
               userData={userData}
+              busqueda={busqueda}
+              paginaActual={paginaActual}
+              productosPorPagina={productosPorPagina}
               eliminar={(id) => eliminar(id)}
               abrirModal={(p) => abrirModal(p)}
             />
+
+            <div className="d-flex justify-content-between align-items-center mt-3">
+              <button
+                className="btn btn-outline-secondary"
+                disabled={paginaActual === 1}
+                onClick={() => setPaginaActual(paginaActual - 1)}
+              >
+                ← Anterior
+              </button>
+
+              <span>Página {paginaActual}</span>
+
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => setPaginaActual(paginaActual + 1)}
+              >
+                Siguiente →
+              </button>
+            </div>
+
           </div>
         </div>
       </div>

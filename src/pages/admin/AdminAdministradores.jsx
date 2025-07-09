@@ -7,6 +7,9 @@ import {
   deleteAdministrador
 } from "../../services/clienteFirebase";
 
+const SUPERADMIN_UID = "TOLz8WdmNxStASekR88U3wGk8Og2";
+
+
 export default function AdminAdministradores() {
   const [admins, setAdmins] = useState([]);
   const [adminActivo, setAdminActivo] = useState(null);
@@ -28,36 +31,40 @@ export default function AdminAdministradores() {
   };
 
   const guardar = async () => {
-  if (!formData.nombre || formData.nombre.length < 3) {
-    Swal.fire("Nombre inválido", "Debe tener al menos 3 caracteres", "warning");
-    return;
-  }
-  if (!formData.email.includes("@")) {
-    Swal.fire("Email inválido", "Debe contener un @", "warning");
-    return;
-  }
-  if (!adminActivo && formData.password.length < 6) {
-    Swal.fire("Contraseña inválida", "Debe tener mínimo 6 caracteres", "warning");
-    return;
-  }
-
-  try {
-    if (adminActivo) {
-      const { password, ...resto } = formData;
-      await updateAdministrador(adminActivo.id, resto);
-      Swal.fire("Actualizado", "Administrador actualizado correctamente", "success");
-    } else {
-      await registrarAdministradorConAuth(formData);
-      Swal.fire("Creado", "Administrador registrado y verificación enviada", "success");
+    if (!formData.nombre || formData.nombre.length < 3) {
+      Swal.fire("Nombre inválido", "Debe tener al menos 3 caracteres", "warning");
+      return;
     }
-    setShowModal(false);
-    cargarAdministradores();
-  } catch (error) {
-    Swal.fire("Error", error.message || "No se pudo guardar", "error");
-  }
+    if (!formData.email.includes("@")) {
+      Swal.fire("Email inválido", "Debe contener un @", "warning");
+      return;
+    }
+    if (!adminActivo && formData.password.length < 6) {
+      Swal.fire("Contraseña inválida", "Debe tener mínimo 6 caracteres", "warning");
+      return;
+    }
+
+    try {
+      if (adminActivo) {
+        const { password, ...resto } = formData;
+        await updateAdministrador(adminActivo.id, resto);
+        Swal.fire("Actualizado", "Administrador actualizado correctamente", "success");
+      } else {
+        await registrarAdministradorConAuth(formData);
+        Swal.fire("Creado", "Administrador registrado y verificación enviada", "success");
+      }
+      setShowModal(false);
+      cargarAdministradores();
+    } catch (error) {
+      Swal.fire("Error", error.message || "No se pudo guardar", "error");
+    }
   };
 
   const eliminar = async (id) => {
+    if (id === SUPERADMIN_UID) {
+      Swal.fire("No permitido", "Este administrador es el mas pulento y no puede ser eliminado", "Warning");
+      return;
+    }
     const confirm = await Swal.fire({
       title: "¿Eliminar administrador?",
       icon: "warning",
@@ -136,13 +143,17 @@ export default function AdminAdministradores() {
                 >
                   Editar
                 </button>
-                <button
-                  className="btn btn-danger btn-sm"
-                  onClick={() => eliminar(a.id)}
-                >
-                  Eliminar
-                </button>
+
+                {a.id !== SUPERADMIN_UID && (
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => eliminar(a.id)}
+                  >
+                    Eliminar
+                  </button>
+                )}
               </td>
+
             </tr>
           ))}
         </tbody>

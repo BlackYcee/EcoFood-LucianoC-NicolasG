@@ -32,7 +32,7 @@ export default function PerfilEmpresa() {
   return (
     <div className="container mt-4">
       <h3>Perfil de Empresa</h3>
-
+      
       <div className="mb-3">
         <label className="form-label"><strong>Nombre</strong></label>
         <input

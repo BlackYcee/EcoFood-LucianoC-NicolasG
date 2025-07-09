@@ -85,10 +85,11 @@ export default function AdminProductos() {
         <thead className="table-light">
           <tr>
             <th>Nombre</th>
-            <th>Categoría</th>
+            <th>Descripción</th>
             <th>Precio</th>
-            <th>Stock</th>
-            <th>Imagen</th>
+            <th>Cantidad</th>
+            <th>Vencimiento</th>
+            <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -96,14 +97,12 @@ export default function AdminProductos() {
           {productos.map((p) => (
             <tr key={p.id}>
               <td>{p.nombre}</td>
-              <td>{p.categoria}</td>
+              <td>{p.descripcion}</td>
               <td>${p.precio}</td>
-              <td>{p.stock}</td>
-              <td>
-                {p.imagenUrl && (
-                  <img src={p.imagenUrl} alt={p.nombre} width={60} height={60} />
-                )}
-              </td>
+              <td>{p.cantidad}</td>
+              <td>{p.vencimiento}</td>
+              <td>{p.estado}</td>
+
               <td>
                 <button
                   className="btn btn-warning btn-sm me-2"

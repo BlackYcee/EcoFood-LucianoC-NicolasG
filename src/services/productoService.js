@@ -37,7 +37,17 @@ export const updateProducto = async (id, data) => {
   await updateDoc(ref, data);
 };
 
-// literalmente obtiene productos dependiendo de la empresa
+
+export const getProductosByEmpresa = async (empresaId) => {
+  const q = query(
+    collection(db, "productos"),
+    where("empresaId", "==", empresaId)
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+};
+
+// literalmente obtiene productos dependiendo de la empresa pd: no sirve para nada
 export const obtenerProductosEmpresa = async (empresaId, opciones = {}) => {
   const { nombre = "", cursor = null, limite = 10 } = opciones;
   const productosRef = collection(db, "productos");

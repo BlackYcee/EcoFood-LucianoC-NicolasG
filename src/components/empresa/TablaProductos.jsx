@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getProductos } from "../../services/productoService";
+import { getProductosByEmpresa  } from "../../services/productoService";
 
 export default function TablaProductos({
   userData,
@@ -13,14 +13,18 @@ export default function TablaProductos({
 }) {
   const [productos, setProductos] = useState([]);
 
-  const cargar = async () => {
-    const data = await getProductos(userData.uid);
-    setProductos(data);
-  };
+ const cargar = async () => {
+  const data = await getProductosByEmpresa(userData.uid);
+  setProductos(data);
+};
+
 
   useEffect(() => {
+  if (userData) {
     cargar();
-  }, []);
+  }
+}, [userData]);
+
 
   const filtrarOrdenar = () => {
     const hoy = new Date();

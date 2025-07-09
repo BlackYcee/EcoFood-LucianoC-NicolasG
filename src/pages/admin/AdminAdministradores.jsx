@@ -162,6 +162,7 @@ export default function AdminAdministradores() {
                   className="form-control mb-2"
                   placeholder="Nombre"
                   value={formData.nombre}
+                  maxLength={30}
                   onChange={(e) =>
                     setFormData({ ...formData, nombre: e.target.value })
                   }
@@ -170,6 +171,8 @@ export default function AdminAdministradores() {
                   type="email"
                   className="form-control mb-2"
                   placeholder="Email"
+                  pattern=".+@example\.com"
+                  maxLength={40}
                   value={formData.email}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
@@ -190,6 +193,7 @@ export default function AdminAdministradores() {
                   className="form-control mb-2"
                   placeholder="Comuna"
                   value={formData.comuna}
+                  maxLength={30}
                   onChange={(e) =>
                     setFormData({ ...formData, comuna: e.target.value })
                   }
@@ -198,6 +202,7 @@ export default function AdminAdministradores() {
                   className="form-control mb-2"
                   placeholder="Dirección"
                   value={formData.direccion}
+                  maxLength={30}
                   onChange={(e) =>
                     setFormData({ ...formData, direccion: e.target.value })
                   }
@@ -206,6 +211,7 @@ export default function AdminAdministradores() {
                   className="form-control mb-2"
                   placeholder="Teléfono"
                   value={formData.telefono}
+                  maxLength={12}
                   onChange={(e) => {
                     const valor = e.target.value;
                     if (/^\d*$/.test(valor) && valor.length <= 12) {

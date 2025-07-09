@@ -1,4 +1,7 @@
-function App() {
- return <h1>Bienvenido a EcoFood</h1>;
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import "./styles/styles.css"; 
+import AppRouter from "./routes/AppRouter";
+
+export default function App() {
+  return <AppRouter />;
 }
-export default App;

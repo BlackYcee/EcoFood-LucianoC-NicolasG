@@ -40,6 +40,7 @@ export default function PerfilEmpresa() {
           name="nombre"
           value={formData.nombre}
           onChange={handleChange}
+          maxLength={30}
           disabled={!editando}
         />
       </div>
@@ -52,6 +53,14 @@ export default function PerfilEmpresa() {
           disabled
         />
       </div>
+      <div className="mb-3">
+        <label className="form-label"><strong>Rut</strong></label>
+        <input
+          className="form-control"
+          value={userData?.rut || ""}
+          disabled
+        />
+      </div>
 
       <div className="mb-3">
         <label className="form-label"><strong>Comuna</strong></label>
@@ -60,6 +69,7 @@ export default function PerfilEmpresa() {
           name="comuna"
           value={formData.comuna}
           onChange={handleChange}
+          maxLength={30}
           disabled={!editando}
         />
       </div>
@@ -71,6 +81,7 @@ export default function PerfilEmpresa() {
           name="direccion"
           value={formData.direccion}
           onChange={handleChange}
+          maxLength={30}
           disabled={!editando}
         />
       </div>
@@ -82,6 +93,7 @@ export default function PerfilEmpresa() {
           name="telefono"
           value={formData.telefono}
           onChange={handleChange}
+          maxLength={12}
           disabled={!editando}
         />
       </div>

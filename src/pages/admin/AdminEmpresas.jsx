@@ -20,6 +20,7 @@ export default function AdminEmpresas() {
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
+    rut: "",
     comuna: "",
     direccion: "",
     telefono: "",
@@ -132,6 +133,7 @@ export default function AdminEmpresas() {
           setFormData({
             nombre: "",
             email: "",
+            rut: "",
             comuna: "",
             direccion: "",
             telefono: "",
@@ -150,6 +152,7 @@ export default function AdminEmpresas() {
           <tr>
             <th>Nombre</th>
             <th>Email</th>
+            <th>Rut</th>
             <th>Comuna</th>
             <th>Teléfono</th>
             <th>Dirección</th>
@@ -161,6 +164,7 @@ export default function AdminEmpresas() {
             <tr key={e.id}>
               <td>{e.nombre}</td>
               <td>{e.email}</td>
+              <td>{e.rut}</td>
               <td>{e.comuna}</td>
               <td>{e.telefono}</td>
               <td>{e.direccion}</td>
@@ -172,6 +176,7 @@ export default function AdminEmpresas() {
                     setFormData({
                       nombre: e.nombre,
                       email: e.email,
+                      rut: e.rut,
                       comuna: e.comuna,
                       direccion: e.direccion || "",
                       telefono: e.telefono || "",
@@ -210,6 +215,7 @@ export default function AdminEmpresas() {
                   className="form-control mb-2"
                   placeholder="Nombre"
                   value={formData.nombre}
+                  maxLength={30}
                   onChange={(e) =>
                     setFormData({ ...formData, nombre: e.target.value })
                   }
@@ -219,8 +225,19 @@ export default function AdminEmpresas() {
                   className="form-control mb-2"
                   placeholder="Email"
                   value={formData.email}
+                  maxLength={64}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
+                  }
+                />
+                <input
+                  type="rut"
+                  className="form-control mb-2"
+                  placeholder="RUT"
+                  value={formData.rut}
+                  maxLength={12}
+                  onChange={(e) =>
+                    setFormData({ ...formData, rut: e.target.value })
                   }
                 />
                 {!empresaActiva && (
@@ -238,6 +255,7 @@ export default function AdminEmpresas() {
                   className="form-control mb-2"
                   placeholder="Comuna"
                   value={formData.comuna}
+                  
                   onChange={(e) =>
                     setFormData({ ...formData, comuna: e.target.value })
                   }

@@ -6,6 +6,10 @@ import ProtectedRoute from "../routes/ProtectedRoute";
 import RecuperarContraseña from "../pages/RecuperarContraseña";
 import ProtectedByRole from "../routes/ProtectedByRole";
 
+//pagina de inicio y la wea de styles
+import Inicio from "../pages/Inicio";
+import "../styles/styles.css"; // suponiendo que está en src/styles/styles.css
+
 // Cliente
 import ClienteDashboard from '../pages/cliente/ClienteDashboard';
 import ClienteProductos from "../pages/cliente/ClienteProductos";
@@ -29,7 +33,8 @@ import Productos from "../pages/empresa/Productos";
 export default function AppRouter() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/mainecofood.html" replace />} />
+      <Route path="/inicio" element={<Inicio />} />
+      <Route path="/" element={<Navigate to="/inicio" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/recuperar" element={<RecuperarContraseña />} />
       <Route path="/register" element={<Register />} />

@@ -4,21 +4,24 @@ import {
   getProductos,
   updateProducto,
   deleteProducto,
-  addProducto 
+  addProducto
 } from "../../services/productoService";
 
 export default function AdminProductos() {
   const [productos, setProductos] = useState([]);
   const [productoActivo, setProductoActivo] = useState(null);
   const [showModal, setShowModal] = useState(false);
+
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
     precio: "",
-    stock: "",
-    categoria: "",
-    imagenUrl: ""
+    cantidad: "",
+    vencimiento: "",
+    estado: "disponible"
   });
+
+  const hoyISO = new Date().toISOString().split("T")[0];
 
   const cargarProductos = async () => {
     const data = await getProductos();
@@ -31,7 +34,7 @@ export default function AdminProductos() {
         await updateProducto(productoActivo.id, formData);
         Swal.fire("Actualizado", "Producto actualizado correctamente", "success");
       } else {
-        await addProducto (formData);
+        await addProducto(formData);
         Swal.fire("Producto registrado", "Se agregó correctamente.", "success");
       }
       setShowModal(false);
@@ -71,9 +74,9 @@ export default function AdminProductos() {
             nombre: "",
             descripcion: "",
             precio: "",
-            stock: "",
-            categoria: "",
-            imagenUrl: ""
+            cantidad: "",
+            vencimiento: "",
+            estado: "disponible"
           });
           setShowModal(true);
         }}
@@ -102,19 +105,18 @@ export default function AdminProductos() {
               <td>{p.cantidad}</td>
               <td>{p.vencimiento}</td>
               <td>{p.estado}</td>
-
               <td>
                 <button
                   className="btn btn-warning btn-sm me-2"
                   onClick={() => {
                     setProductoActivo(p);
                     setFormData({
-                      nombre: p.nombre,
+                      nombre: p.nombre || "",
                       descripcion: p.descripcion || "",
                       precio: p.precio,
-                      stock: p.stock,
-                      categoria: p.categoria || "",
-                      imagenUrl: p.imagenUrl || ""
+                      cantidad: p.cantidad,
+                      vencimiento: p.vencimiento || "",
+                      estado: p.estado || "disponible"
                     });
                     setShowModal(true);
                   }}
@@ -146,6 +148,7 @@ export default function AdminProductos() {
                 <input
                   className="form-control mb-2"
                   placeholder="Nombre"
+                  maxLength={40}
                   value={formData.nombre}
                   onChange={(e) =>
                     setFormData({ ...formData, nombre: e.target.value })
@@ -154,6 +157,7 @@ export default function AdminProductos() {
                 <input
                   className="form-control mb-2"
                   placeholder="Descripción"
+                  maxLength={100}
                   value={formData.descripcion}
                   onChange={(e) =>
                     setFormData({ ...formData, descripcion: e.target.value })
@@ -161,6 +165,7 @@ export default function AdminProductos() {
                 />
                 <input
                   type="number"
+                  min={0}
                   className="form-control mb-2"
                   placeholder="Precio"
                   value={formData.precio}
@@ -170,29 +175,34 @@ export default function AdminProductos() {
                 />
                 <input
                   type="number"
+                  min={0}
                   className="form-control mb-2"
-                  placeholder="Stock"
-                  value={formData.stock}
+                  placeholder="Cantidad"
+                  value={formData.cantidad}
                   onChange={(e) =>
-                    setFormData({ ...formData, stock: e.target.value })
+                    setFormData({ ...formData, cantidad: e.target.value })
                   }
                 />
                 <input
+                  type="date"
                   className="form-control mb-2"
-                  placeholder="Categoría"
-                  value={formData.categoria}
+                  value={formData.vencimiento}
+                  min={hoyISO}
                   onChange={(e) =>
-                    setFormData({ ...formData, categoria: e.target.value })
+                    setFormData({ ...formData, vencimiento: e.target.value })
                   }
                 />
-                <input
-                  className="form-control mb-2"
-                  placeholder="URL de imagen"
-                  value={formData.imagenUrl}
+                <select
+                  className="form-select mb-2"
+                  value={formData.estado}
                   onChange={(e) =>
-                    setFormData({ ...formData, imagenUrl: e.target.value })
+                    setFormData({ ...formData, estado: e.target.value })
                   }
-                />
+                >
+                  <option value="disponible">Disponible</option>
+                  <option value="agotado">Agotado</option>
+                  <option value="oculto">Oculto</option>
+                </select>
               </div>
               <div className="modal-footer">
                 <button

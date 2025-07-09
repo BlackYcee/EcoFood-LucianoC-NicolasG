@@ -8,6 +8,7 @@ import ModalProductos from "../../components/empresa/ModalProductos";
 export default function Productos() {
   const { userData } = useAuth();
   const [busqueda, setBusqueda] = useState("");
+  const [orden, setOrden] = useState("nombre-asc"); // 👈 Estado de orden
   const [refreshTick, setRefreshTick] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -57,8 +58,6 @@ export default function Productos() {
   const [paginaActual, setPaginaActual] = useState(1);
   const [productosPorPagina, setProductosPorPagina] = useState(10);
 
-
-
   return (
     <>
       <div className="container mt-4">
@@ -90,12 +89,32 @@ export default function Productos() {
           </div>
 
           <div className="col-12 col-md-4 mt-2">
+            <label className="form-label">Ordenar productos</label>
+            <select
+              className="form-select"
+              value={orden}
+              onChange={(e) => setOrden(e.target.value)}
+            >
+              <option value="nombre-asc">Nombre (A-Z)</option>
+              <option value="nombre-desc">Nombre (Z-A)</option>
+            </select>
+            <select
+            className="form-select"
+              value={orden}
+              onChange={(e) => setOrden(e.target.value)}
+            >
+              <option value="precio-asc">Precio (menor a mayor)</option>
+              <option value="precio-desc">Precio (mayor a menor)</option>
+            </select>
+          </div>
+
+          <div className="col-12 col-md-4 mt-2">
             <label className="form-label">Productos por página</label>
             <select
               className="form-select"
               value={productosPorPagina}
               onChange={(e) => {
-                setPaginaActual(1); // volver a la primera página al cambiar cantidad
+                setPaginaActual(1);
                 setProductosPorPagina(Number(e.target.value));
               }}
             >
@@ -105,7 +124,6 @@ export default function Productos() {
             </select>
           </div>
 
-
           <div className="col-12">
             <TablaProductos
               key={refreshTick}
@@ -113,15 +131,16 @@ export default function Productos() {
               busqueda={busqueda}
               paginaActual={paginaActual}
               productosPorPagina={productosPorPagina}
-              eliminar={(id) => eliminar(id)}
-              abrirModal={(p) => abrirModal(p)}
+              orden={orden} // 👈 Pasado como prop
+              eliminar={eliminar}
+              abrirModal={abrirModal}
             />
 
             <div className="d-flex justify-content-between align-items-center mt-3">
               <button
                 className="btn btn-outline-secondary"
                 disabled={paginaActual === 1}
-                onClick={() => setPaginaActual(paginaActual - 1)}
+                onClick={() => setPaginaActual((prev) => prev - 1)}
               >
                 ← Anterior
               </button>
@@ -130,12 +149,11 @@ export default function Productos() {
 
               <button
                 className="btn btn-outline-secondary"
-                onClick={() => setPaginaActual(paginaActual + 1)}
+                onClick={() => setPaginaActual((prev) => prev + 1)}
               >
                 Siguiente →
               </button>
             </div>
-
           </div>
         </div>
       </div>

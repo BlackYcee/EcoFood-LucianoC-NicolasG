@@ -83,6 +83,7 @@ export default function ModalProductos({
             className="form-control mb-2"
             placeholder="Nombre"
             value={formData.nombre}
+            maxLength={30}
             onChange={(e) =>
               setFormData({ ...formData, nombre: e.target.value })
             }
@@ -91,6 +92,7 @@ export default function ModalProductos({
             className="form-control mb-2"
             placeholder="Descripción"
             value={formData.descripcion}
+            maxLength={256}
             onChange={(e) =>
               setFormData({ ...formData, descripcion: e.target.value })
             }
@@ -109,6 +111,7 @@ export default function ModalProductos({
             type="number"
             className="form-control mb-2"
             placeholder="Cantidad"
+            maxLength={30}
             value={formData.cantidad || ""}
             min={1}
             onChange={(e) =>

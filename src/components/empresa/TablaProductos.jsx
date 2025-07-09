@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getProductosByEmpresa  } from "../../services/productoService";
+import { getProductosByEmpresa } from "../../services/productoService";
 
 export default function TablaProductos({
   userData,
@@ -13,17 +13,17 @@ export default function TablaProductos({
 }) {
   const [productos, setProductos] = useState([]);
 
- const cargar = async () => {
-  const data = await getProductosByEmpresa(userData.uid);
-  setProductos(data);
-};
+  const cargar = async () => {
+    const data = await getProductosByEmpresa(userData.uid);
+    setProductos(data);
+  };
 
 
   useEffect(() => {
-  if (userData) {
-    cargar();
-  }
-}, [userData]);
+    if (userData) {
+      cargar();
+    }
+  }, [userData]);
 
 
   const filtrarOrdenar = () => {
@@ -53,6 +53,7 @@ export default function TablaProductos({
         if (orden === "precio-desc") return b.precio - a.precio;
         return 0;
       });
+
   };
 
   const paginados = () => {
@@ -82,8 +83,8 @@ export default function TablaProductos({
             dias <= 3 && dias >= 0
               ? "Por vencer"
               : dias < 0
-              ? "Vencido"
-              : "";
+                ? "Vencido"
+                : "";
 
           return (
             <tr key={p.id}>

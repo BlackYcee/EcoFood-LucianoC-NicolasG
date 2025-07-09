@@ -156,6 +156,7 @@ export default function AdminUsuarios() {
                   className="form-control mb-2"
                   placeholder="Nombre"
                   value={formData.nombre}
+                  maxLength={30}
                   onChange={(e) =>
                     setFormData({ ...formData, nombre: e.target.value })
                   }
@@ -174,6 +175,7 @@ export default function AdminUsuarios() {
                   className="form-control mb-2"
                   placeholder="Comuna"
                   value={formData.comuna}
+                  maxLength={30}
                   onChange={(e) =>
                     setFormData({ ...formData, comuna: e.target.value })
                   }
@@ -194,6 +196,7 @@ export default function AdminUsuarios() {
                   className="form-control mb-2"
                   placeholder="Dirección"
                   value={formData.direccion}
+                  maxLength={30}
                   onChange={(e) =>
                     setFormData({ ...formData, direccion: e.target.value })
                   }

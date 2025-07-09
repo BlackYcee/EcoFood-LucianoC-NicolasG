@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import {
-  getClientes,
-  updateCliente,
-  deleteCliente
+  getAdministradores,
+  registrarAdministradorConAuth,
+  updateAdministrador,
+  deleteAdministrador
 } from "../../services/clienteFirebase";
 
 export default function AdminAdministradores() {
@@ -16,38 +17,56 @@ export default function AdminAdministradores() {
     comuna: "",
     direccion: "",
     telefono: "",
-    tipo: "admin"
+    tipo: "admin",
+    password: ""
   });
 
   const cargarAdministradores = async () => {
-    const data = await getClientes();
+    const data = await getAdministradores();
     const soloAdmins = data.filter((u) => u.tipo === "admin");
     setAdmins(soloAdmins);
   };
 
   const guardar = async () => {
-    try {
-      if (adminActivo) {
-        await updateCliente(adminActivo.id, formData);
-        Swal.fire("Actualizado", "Administrador actualizado correctamente", "success");
-      }
-      setShowModal(false);
-      cargarAdministradores();
-    } catch (error) {
-      Swal.fire("Error", error.message || "No se pudo actualizar", "error");
+  if (!formData.nombre || formData.nombre.length < 3) {
+    Swal.fire("Nombre inválido", "Debe tener al menos 3 caracteres", "warning");
+    return;
+  }
+  if (!formData.email.includes("@")) {
+    Swal.fire("Email inválido", "Debe contener un @", "warning");
+    return;
+  }
+  if (!adminActivo && formData.password.length < 6) {
+    Swal.fire("Contraseña inválida", "Debe tener mínimo 6 caracteres", "warning");
+    return;
+  }
+
+  try {
+    if (adminActivo) {
+      const { password, ...resto } = formData;
+      await updateAdministrador(adminActivo.id, resto);
+      Swal.fire("Actualizado", "Administrador actualizado correctamente", "success");
+    } else {
+      await registrarAdministradorConAuth(formData);
+      Swal.fire("Creado", "Administrador registrado y verificación enviada", "success");
     }
+    setShowModal(false);
+    cargarAdministradores();
+  } catch (error) {
+    Swal.fire("Error", error.message || "No se pudo guardar", "error");
+  }
   };
 
   const eliminar = async (id) => {
-    const resultado = await Swal.fire({
+    const confirm = await Swal.fire({
       title: "¿Eliminar administrador?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Sí, eliminar",
+      confirmButtonText: "Sí, eliminar"
     });
 
-    if (resultado.isConfirmed) {
-      await deleteCliente(id);
+    if (confirm.isConfirmed) {
+      await deleteAdministrador(id);
       cargarAdministradores();
     }
   };
@@ -70,15 +89,14 @@ export default function AdminAdministradores() {
             comuna: "",
             direccion: "",
             telefono: "",
-            tipo: "admin"
+            tipo: "admin",
+            password: ""
           });
           setShowModal(true);
         }}
       >
         Nuevo Administrador
       </button>
-
-
 
       <table className="table">
         <thead>
@@ -110,7 +128,8 @@ export default function AdminAdministradores() {
                       comuna: a.comuna,
                       direccion: a.direccion || "",
                       telefono: a.telefono || "",
-                      tipo: a.tipo || "admin"
+                      tipo: a.tipo || "admin",
+                      password: ""
                     });
                     setShowModal(true);
                   }}
@@ -134,7 +153,9 @@ export default function AdminAdministradores() {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Editar Administrador</h5>
+                <h5 className="modal-title">
+                  {adminActivo ? "Editar Administrador" : "Nuevo Administrador"}
+                </h5>
               </div>
               <div className="modal-body">
                 <input
@@ -154,6 +175,17 @@ export default function AdminAdministradores() {
                     setFormData({ ...formData, email: e.target.value })
                   }
                 />
+                {!adminActivo && (
+                  <input
+                    type="password"
+                    className="form-control mb-2"
+                    placeholder="Contraseña (mín. 6 caracteres)"
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                  />
+                )}
                 <input
                   className="form-control mb-2"
                   placeholder="Comuna"
@@ -183,10 +215,7 @@ export default function AdminAdministradores() {
                 />
               </div>
               <div className="modal-footer">
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setShowModal(false)}
-                >
+                <button className="btn btn-secondary" onClick={() => setShowModal(false)}>
                   Cancelar
                 </button>
                 <button className="btn btn-success" onClick={guardar}>

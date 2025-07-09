@@ -4,8 +4,8 @@ import {
   getProductos,
   updateProducto,
   deleteProducto,
-  registrarProducto
-} from "../../services/productoFirebase";
+  addProducto 
+} from "../../services/productoService";
 
 export default function AdminProductos() {
   const [productos, setProductos] = useState([]);
@@ -31,7 +31,7 @@ export default function AdminProductos() {
         await updateProducto(productoActivo.id, formData);
         Swal.fire("Actualizado", "Producto actualizado correctamente", "success");
       } else {
-        await registrarProducto(formData);
+        await addProducto (formData);
         Swal.fire("Producto registrado", "Se agregó correctamente.", "success");
       }
       setShowModal(false);

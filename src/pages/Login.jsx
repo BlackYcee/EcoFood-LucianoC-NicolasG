@@ -9,7 +9,6 @@ import { auth } from "../services/firebase";
 import Swal from "sweetalert2";
 import { getUserData } from "../services/userService";
 
-
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,10 +18,10 @@ export default function Login() {
     e.preventDefault();
     try {
       await setPersistence(auth, browserLocalPersistence);
-      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
 
       if (!cred.user.emailVerified) {
-        Swal.fire(
+        await Swal.fire(
           "Verificación requerida",
           "Debes verificar tu correo antes de ingresar.",
           "warning"
@@ -30,22 +29,26 @@ export default function Login() {
         return;
       }
 
-      Swal.fire("Bienvenido", "Has iniciado sesión correctamente", "success");
-
       const datos = await getUserData(cred.user.uid);
+
+      await Swal.fire("Bienvenido", `Hola ${datos.nombre || ""}`, "success");
 
       if (datos.tipo === "admin") {
         navigate("/admin/dashboard");
+      } else if (datos.tipo === "empresa") {
+        navigate("/empresa/Perfil");
       } else if (datos.tipo === "cliente") {
         navigate("/cliente/dashboard");
+      } else {
+        navigate("/"); // Fallback en caso de tipo desconocido
       }
     } catch (error) {
-      Swal.fire("Error", "Credenciales incorrectas o fallo de red", "error");
+      console.error(error);
+      Swal.fire("Error", error.message || "Credenciales incorrectas o fallo de red", "error");
     }
   };
 
   return (
-    
     <div className="container mt-5">
       <h2>Iniciar Sesión</h2>
       <form onSubmit={handleLogin}>
@@ -80,6 +83,5 @@ export default function Login() {
         </button>
       </form>
     </div>
-    
   );
 }

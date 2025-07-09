@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
 
         try {
           const data = await getUserData(firebaseUser.uid);
-
+          data.uid = firebaseUser.uid;
           if (data?.tipo) {
             setUserData(data);
           } else {
